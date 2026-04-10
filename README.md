@@ -35,6 +35,24 @@
 - 报告查看、Markdown 下载、ZIP 批量下载
 - 工作流取消、批量删除及关联文件清理
 
+## 界面预览
+
+### 仪表盘
+
+![仪表盘](png/仪表盘.png)
+
+### 工作流
+
+![工作流](png/工作流.png)
+
+### 论文库
+
+![论文库](png/论文库.png)
+
+### 报告
+
+![报告](png/报告.png)
+
 ## 技术栈
 
 ### 后端
@@ -150,19 +168,6 @@ npm run dev
 ```
 
 默认开发地址通常为 `http://localhost:5173`。
-
-## Docker 启动
-
-项目提供了前后端的 Docker Compose 配置：
-
-```bash
-docker compose up --build
-```
-
-默认映射：
-
-- 前端：`http://localhost`
-- 后端：`http://localhost:8000`
 
 ## CLI 用法
 

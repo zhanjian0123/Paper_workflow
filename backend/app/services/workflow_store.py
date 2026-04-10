@@ -682,6 +682,31 @@ class WorkflowStore:
             return self._row_to_report(row)
         return None
 
+    def update_report(self, report_id: str, **updates) -> bool:
+        """更新报告记录"""
+        if not updates:
+            return False
+
+        conn = self._get_connection()
+        cursor = conn.cursor()
+
+        fields = []
+        values = []
+        for key, value in updates.items():
+            fields.append(f"{key} = ?")
+            values.append(value)
+
+        values.append(report_id)
+        cursor.execute(
+            f"UPDATE reports SET {', '.join(fields)} WHERE report_id = ?",
+            values,
+        )
+
+        updated = cursor.rowcount > 0
+        conn.commit()
+        conn.close()
+        return updated
+
     def get_report_by_workflow(self, workflow_id: str) -> Optional[ReportRecord]:
         """根据工作流 ID 获取报告"""
         conn = self._get_connection()

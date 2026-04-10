@@ -139,6 +139,22 @@ def _sync_reports(store: WorkflowStore, roots: Iterable[Path]) -> dict:
         if normalized in indexed_paths:
             continue
 
+        recovered_report_id = f"rpt_recovered_{report_file.stem[-16:]}"
+        existing_report = store.get_report(recovered_report_id)
+        if existing_report:
+            updates = {}
+            if _normalized_path(existing_report.file_path) != normalized:
+                updates["file_path"] = str(report_file)
+            if not existing_report.content_markdown:
+                updates["content_markdown"] = report_file.read_text(
+                    encoding="utf-8",
+                    errors="ignore",
+                )
+            if updates:
+                store.update_report(recovered_report_id, **updates)
+            indexed_paths[normalized] = store.get_report(recovered_report_id) or existing_report
+            continue
+
         report_content = report_file.read_text(encoding="utf-8", errors="ignore")
         timestamp = _extract_report_timestamp(report_file) or datetime.fromtimestamp(
             report_file.stat().st_mtime
@@ -155,7 +171,7 @@ def _sync_reports(store: WorkflowStore, roots: Iterable[Path]) -> dict:
             recovered += 1
 
         report = ReportRecord(
-            report_id=f"rpt_recovered_{report_file.stem[-16:]}",
+            report_id=recovered_report_id,
             workflow_id=workflow_id,
             content_markdown=report_content,
             file_path=str(report_file),
