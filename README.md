@@ -1,222 +1,265 @@
-# 文献分析工作流系统
+# Paper Workflow
 
-基于多 Agent 协作的学术论文智能处理系统，支持从 ArXiv 和 Google Scholar 搜索、下载、分析论文，并自动生成学术报告。
+一个面向学术文献场景的多 Agent 工作流系统，提供命令行与 Web 两种使用方式。它可以围绕一个研究主题执行论文检索、PDF 获取、本地论文上传、内容分析、报告生成与结果管理，并通过实时事件流展示工作流进度。
 
-## 快速开始
+## 项目概览
 
-### 系统要求
+- 多 Agent 协作执行文献分析流程，包含 `search`、`analyst`、`writer`、`reviewer`、`editor` 等角色
+- 支持 `ArXiv`、`Google Scholar` 和本地上传 PDF 三种论文来源
+- 提供 FastAPI 后端与 Vue 3 前端，可在浏览器中创建、跟踪和管理工作流
+- 提供 CLI 入口，适合脚本化执行和本地调试
+- 内置工作流存储、报告管理、论文批量下载/删除、WebSocket 实时状态推送
 
-- Node.js >= 18
-- Python >= 3.10
-- 环境变量：`ANTHROPIC_API_KEY` 或其他 LLM API Key
+## 主要能力
 
-### 安装
+### 文献获取
 
-```bash
-# 克隆项目
-git clone <repository-url>
-cd literature-workflow
+- 根据研究主题检索论文
+- 按年份范围过滤结果
+- 限制下载论文数量
+- 支持单篇或批量上传本地 PDF
+- 支持对上传 PDF 进行元数据和文本解析
 
-# 安装 Python 依赖
-pip install -r requirements.txt
+### 工作流处理
 
-# 安装前端依赖
-cd frontend
-npm install
-```
+- 搜索阶段：检索并准备论文材料
+- 分析阶段：提取研究问题、方法、贡献与关键信息
+- 撰写阶段：生成结构化综述或分析报告
+- 审核阶段：检查内容质量与逻辑完整性
+- 编辑阶段：整合修改意见，生成最终结果
 
-### 配置
+### 结果管理
 
-```bash
-# 复制环境变量配置
-cp .env.example .env
-
-# 编辑 .env 文件，设置 API Key
-# ANTHROPIC_API_KEY=your_api_key_here
-```
-
-### 启动服务
-
-```bash
-# 终端 1 - 启动后端
-cd backend
-uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
-
-# 终端 2 - 启动前端
-cd frontend
-npm run dev
-```
-
-访问 http://localhost:5173 使用 Web 界面。
-
-## 功能特性
-
-### 核心功能
-
-- **多数据源搜索**: 支持 ArXiv 和 Google Scholar
-- **智能分析**: Agent 自动提取论文关键信息
-- **报告生成**: 自动生成学术报告
-- **实时进度**: WebSocket 实时推送工作流状态
-- **长期记忆**: 保存用户偏好和反馈
-
-### 工作流阶段
-
-| 阶段 | 权重 | 说明 |
-|------|------|------|
-| 文献搜索 | 25% | 从 ArXiv/Google Scholar 搜索并下载论文 |
-| 文献分析 | 25% | 提取研究问题、方法、创新点 |
-| 报告撰写 | 25% | 生成报告草稿 |
-| 质量审核 | 15% | 审核报告质量 |
-| 最终编辑 | 10% | 整合反馈生成终稿 |
-
-## 项目结构
-
-```
-projects/
-├── backend/              # 后端服务 (FastAPI)
-│   └── app/
-│       ├── api/         # API 路由
-│       ├── schemas/     # Pydantic 模型
-│       ├── services/    # 业务服务
-│       ├── core/        # 核心配置
-│       └── adapters/    # 适配器
-├── frontend/            # 前端应用 (Vue 3)
-│   └── src/
-│       ├── api/        # API 客户端
-│       ├── components/ # 通用组件
-│       ├── composables/# 组合式函数
-│       ├── stores/     # Pinia 状态
-│       ├── views/      # 页面组件
-│       └── utils/      # 工具函数
-├── core/               # 核心引擎
-├── agents/             # Agent 实现
-├── tools/              # 工具实现
-├── memory/             # 记忆系统
-├── config/             # 配置文件
-└── output/             # 输出目录
-```
-
-## API 文档
-
-启动后端后访问：
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
-
-### 主要端点
-
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/api/workflows` | POST | 创建工作流 |
-| `/api/workflows` | GET | 获取工作流列表 |
-| `/api/workflows/{id}` | GET | 获取工作流详情 |
-| `/api/workflows/{id}/cancel` | POST | 取消工作流 |
-| `/api/papers` | GET | 获取论文列表 |
-| `/api/reports` | GET | 获取报告列表 |
-| `/api/memory` | GET/POST | 记忆管理 |
-| `/ws/workflows/{id}` | WS | WebSocket 订阅 |
-
-## CLI 使用
-
-```bash
-# 完整工作流
-python main.py -r "搜索 transformer 相关论文" -y "2024-2026" -m 10
-
-# 指定数据源
-python main.py -r "deep learning" -s google -m 5
-
-# 直接运行 Agent
-python main.py -a search -r "machine learning"
-
-# 交互模式
-python main.py
-```
-
-### 命令行参数
-
-| 参数 | 说明 | 默认值 |
-|------|------|--------|
-| `-r, --request` | 用户请求 | - |
-| `-a, --agent` | 直接运行 Agent | - |
-| `-y, --year-range` | 年份范围 | - |
-| `-m, --max-papers` | 最大论文数 | 10 |
-| `-s, --source` | 数据源 | arxiv |
+- 工作流状态与阶段进度可视化
+- 论文列表筛选、PDF 下载、ZIP 批量下载
+- 报告查看、Markdown 下载、ZIP 批量下载
+- 工作流取消、批量删除及关联文件清理
 
 ## 技术栈
 
 ### 后端
-- FastAPI - Web 框架
-- Pydantic - 数据验证
-- SQLite - 数据持久化
-- WebSocket - 实时通信
-- asyncio - 异步编程
+
+- Python 3.10+
+- FastAPI
+- Pydantic / pydantic-settings
+- SQLite
+- WebSocket
+- aiohttp / aiofiles
 
 ### 前端
-- Vue 3 - UI 框架
-- Vite - 构建工具
-- Pinia - 状态管理
-- Element Plus - UI 组件
-- Axios - HTTP 客户端
-- markdown-it - Markdown 渲染
 
-### AI 集成
-- Multi-Agent 系统 - 6 个协作 Agent
-- Tool 系统 - 可扩展工具集
-- 技能系统 - YAML 配置技能
-- 记忆系统 - 长期记忆存储
+- Vue 3
+- Vite
+- Pinia
+- Vue Router
+- Element Plus
 
-## 开发指南
+### AI 与流程层
 
-### 添加新路由
+- 多 Agent 架构
+- Skill 配置系统
+- Tool Registry / MCP 集成
+- 长短期记忆模块
 
-```python
-# backend/app/api/routes/custom.py
-from fastapi import APIRouter
+## 仓库结构
 
-router = APIRouter(prefix="/api/custom", tags=["custom"])
-
-@router.get("")
-async def get_custom():
-    return {"data": "custom"}
+```text
+.
+├── agents/                  # 多 Agent 实现
+├── backend/                 # FastAPI 后端
+│   └── app/
+│       ├── adapters/        # 工作流适配层
+│       ├── api/             # REST / WebSocket 接口
+│       ├── core/            # 配置与依赖
+│       ├── schemas/         # 数据模型
+│       └── services/        # 业务服务
+├── config/                  # Agent、Skill、MCP 配置
+├── core/                    # CLI / 工作流核心引擎
+├── docs/                    # 补充文档
+├── frontend/                # Vue 前端
+├── mcp/                     # MCP 客户端与工具注册
+├── memory/                  # 记忆系统
+├── output/                  # 工作流输出、数据库、上传文件
+├── scripts/                 # 辅助脚本
+├── tests/                   # 测试
+├── tools/                   # 检索、PDF、文件等工具
+└── main.py                  # CLI 入口
 ```
 
-```python
-# backend/app/main.py
-from backend.app.api.routes import custom
-app.include_router(custom.router)
+## 环境要求
+
+- Python `3.10+`
+- Node.js `18+`
+- npm `9+` 或兼容版本
+- 可用的 LLM API Key
+
+## 环境变量
+
+项目根目录的 `.env` 会被后端自动加载。可以直接参考 `.env.example`：
+
+```bash
+ANTHROPIC_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+ANTHROPIC_API_KEY=sk-your-api-key-here
+MODEL_ID=qwen3.5-plus
 ```
 
-### 添加新组件
+说明：
 
-```vue
-<!-- frontend/src/components/Custom.vue -->
-<template>
-  <div class="custom">{{ text }}</div>
-</template>
+- `ANTHROPIC_BASE_URL`：当前示例使用 DashScope 的 Anthropic 兼容接口
+- `ANTHROPIC_API_KEY`：模型调用密钥
+- `MODEL_ID`：默认模型名
 
-<script setup>
-defineProps({ text: String })
-</script>
+## 本地开发
+
+### 1. 安装依赖
+
+```bash
+pip install -r requirements.txt
+pip install -r backend/requirements.txt
+
+cd frontend
+npm install
+cd ..
 ```
 
-## 常见问题
+### 2. 配置环境变量
 
-### API 调用失败
+```bash
+cp .env.example .env
+```
 
-1. 检查 `.env` 文件中 API Key 配置
-2. 确认网络连接正常
-3. 查看后端日志
+按需修改 `.env` 中的模型地址、Key 与模型名。
 
-### 前端无法连接后端
+### 3. 启动后端
 
-1. 确认后端服务运行在 8000 端口
-2. 检查 Vite 代理配置 (`vite.config.js`)
-3. 清除浏览器缓存
+```bash
+uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
+```
 
-### 工作流执行失败
+后端启动后可访问：
 
-1. 查看工作流日志
-2. 检查输出目录权限
-3. 确认模型配置正确
+- `http://localhost:8000/docs`
+- `http://localhost:8000/redoc`
+- `http://localhost:8000/health`
+
+### 4. 启动前端
+
+```bash
+cd frontend
+npm run dev
+```
+
+默认开发地址通常为 `http://localhost:5173`。
+
+## Docker 启动
+
+项目提供了前后端的 Docker Compose 配置：
+
+```bash
+docker compose up --build
+```
+
+默认映射：
+
+- 前端：`http://localhost`
+- 后端：`http://localhost:8000`
+
+## CLI 用法
+
+命令行入口为项目根目录的 `main.py`。
+
+### 运行完整工作流
+
+```bash
+python main.py -r "搜索 transformer 方向的最新研究" -y "2024-2026" -m 10 -s arxiv
+```
+
+### 指定数据源
+
+```bash
+python main.py -r "multimodal reasoning" -s both -m 5
+```
+
+### 直接运行某个 Agent
+
+```bash
+python main.py -a search -r "graph neural networks"
+```
+
+### 常用参数
+
+| 参数 | 说明 |
+|------|------|
+| `-r, --request` | 用户请求 / 研究主题 |
+| `-a, --agent` | 直接运行指定 Agent |
+| `-y, --year-range` | 年份范围，如 `2024-2026` |
+| `-m, --max-papers` | 最大论文数 |
+| `-s, --source` | `arxiv` / `google` / `both` |
+| `--model` | 指定模型名称 |
+| `--api-key` | 覆盖环境变量中的 API Key |
+| `--base-url` | 覆盖环境变量中的 Base URL |
+
+## Web API 概览
+
+### 工作流
+
+- `POST /api/workflows`：创建工作流
+- `GET /api/workflows`：获取工作流列表
+- `GET /api/workflows/{id}`：获取工作流详情
+- `POST /api/workflows/{id}/cancel`：取消工作流
+- `POST /api/workflows/batch-delete`：批量删除工作流
+- `POST /api/workflows/from-local-papers`：基于本地上传论文创建工作流
+
+### 上传
+
+- `POST /api/upload/papers`：上传单个 PDF
+- `POST /api/upload/papers/batch`：批量上传 PDF
+- `POST /api/upload/papers/{paper_id}/parse`：解析上传论文
+
+### 论文
+
+- `GET /api/papers`：分页查询论文
+- `GET /api/papers/{paper_id}`：获取论文详情
+- `GET /api/papers/{paper_id}/pdf`：下载单篇 PDF
+- `POST /api/papers/batch-download`：批量下载 PDF ZIP
+- `POST /api/papers/batch-delete`：批量删除论文
+
+### 报告
+
+- `GET /api/reports`：获取报告列表
+- `GET /api/reports/{report_id}`：获取报告详情
+- `GET /api/reports/{report_id}/download`：下载 Markdown 或 PDF
+- `GET /api/reports/workflow/{workflow_id}`：按工作流获取报告
+- `POST /api/reports/batch-download`：批量下载报告 ZIP
+- `POST /api/reports/batch-delete`：批量删除报告
+
+### 实时事件
+
+- `WS /ws/workflows/{workflow_id}`：订阅工作流进度事件
+
+## 输出目录
+
+运行过程中生成的数据默认写入 `output/`：
+
+- `output/workflows/`：工作流产物
+- `output/papers/`：下载的论文 PDF
+- `output/uploads/`：用户上传的 PDF
+- `output/workflow_store.db`：工作流与索引数据库
+
+## 测试
+
+```bash
+pytest
+```
+
+当前仓库中已有的测试覆盖了部分工具、查询改写与工作流取消逻辑。
+
+## 补充文档
+
+- `docs/api_guide.md`
+- `docs/deployment.md`
+- `docs/local_upload_feature.md`
+- `docs/workflow_cancel_improvement.md`
 
 ## 许可证
 
