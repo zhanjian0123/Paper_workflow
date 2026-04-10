@@ -251,13 +251,6 @@ python main.py -a search -r "graph neural networks"
 - `output/uploads/`：用户上传的 PDF
 - `output/workflow_store.db`：工作流与索引数据库
 
-## 测试
-
-```bash
-pytest
-```
-
-当前仓库中已有的测试覆盖了部分工具、查询改写与工作流取消逻辑。
 
 ## 补充文档
 
