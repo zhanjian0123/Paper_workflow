@@ -127,6 +127,40 @@
           </div>
         </el-card>
 
+        <el-card
+          v-if="stageReportItems.length > 0"
+          class="stage-report-card feature-panel feature-panel--blue"
+        >
+          <template #header>
+            <div class="card-header">
+              <el-icon class="header-icon"><DocumentCopy /></el-icon>
+              <span class="card-title">阶段性报告</span>
+            </div>
+          </template>
+
+          <div class="stage-report-list">
+            <section
+              v-for="report in stageReportItems"
+              :key="report.stage"
+              class="stage-report-item"
+            >
+              <div class="stage-report-header">
+                <div>
+                  <h3 class="stage-report-title">{{ report.title }}</h3>
+                  <p v-if="report.summary" class="stage-report-summary">{{ report.summary }}</p>
+                </div>
+                <span v-if="report.generated_at" class="stage-report-time">
+                  {{ formatStageReportTime(report.generated_at) }}
+                </span>
+              </div>
+              <div
+                class="stage-report-markdown markdown-body"
+                v-html="renderStageReport(report.content_markdown)"
+              />
+            </section>
+          </div>
+        </el-card>
+
         <!-- 运行日志 -->
         <el-card class="log-card feature-panel feature-panel--violet">
           <template #header>
@@ -267,12 +301,13 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useWorkflowStore, usePaperStore } from '@/stores'
 import { ElMessage } from 'element-plus'
 import StatusTag from '@/components/StatusTag.vue'
 import { Layout, ContentContainer } from '@/components/layout'
+import MarkdownIt from 'markdown-it'
 import {
   Search,
   Document,
@@ -313,6 +348,27 @@ const stages = reactive([
 
 let ws = null
 let pollTimer = null
+const md = new MarkdownIt({ html: false, linkify: true, breaks: true })
+const stageReportOrder = ['analyst', 'writer', 'reviewer', 'editor']
+const fallbackStageTitles = {
+  analyst: '文献分析阶段报告',
+  writer: '报告撰写阶段报告',
+  reviewer: '质量审核阶段报告',
+  editor: '最终编辑阶段报告',
+}
+
+const stageReportItems = computed(() => {
+  const reports = workflow.value?.result?.stage_reports || {}
+  return stageReportOrder
+    .filter((stage) => reports[stage])
+    .map((stage) => ({
+      stage,
+      title: reports[stage].title || fallbackStageTitles[stage],
+      summary: reports[stage].summary || '',
+      content_markdown: reports[stage].content_markdown || '',
+      generated_at: reports[stage].generated_at || '',
+    }))
+})
 
 const getWebSocketBase = () => {
   const apiBase = import.meta.env.VITE_API_BASE_URL
@@ -442,6 +498,15 @@ const rebuildStageStateFromEvents = (events = []) => {
 const formatLogTime = (timestamp) => {
   const date = timestamp ? new Date(timestamp) : new Date()
   return date.toLocaleTimeString('zh-CN')
+}
+
+const formatStageReportTime = (timestamp) => {
+  if (!timestamp) return ''
+  return new Date(timestamp).toLocaleString('zh-CN')
+}
+
+const renderStageReport = (content) => {
+  return md.render(content || '')
 }
 
 const addLog = (message, type = 'info', timestamp = null, dedupeKey = null) => {
@@ -785,6 +850,7 @@ onUnmounted(() => {
    ============================================= */
 .info-card,
 .stage-card,
+.stage-report-card,
 .log-card,
 .progress-card,
 .papers-card,
@@ -900,6 +966,68 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+}
+
+.stage-report-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.stage-report-item {
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--radius-xl);
+  background: var(--bg-secondary);
+  padding: var(--space-4);
+}
+
+.stage-report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.stage-report-title {
+  margin: 0 0 6px;
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.stage-report-summary {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.stage-report-time {
+  color: var(--text-tertiary);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+}
+
+.stage-report-markdown {
+  color: var(--text-primary);
+  line-height: 1.75;
+}
+
+.stage-report-markdown :deep(h1),
+.stage-report-markdown :deep(h2),
+.stage-report-markdown :deep(h3) {
+  margin-top: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.stage-report-markdown :deep(p),
+.stage-report-markdown :deep(li) {
+  line-height: 1.75;
+}
+
+.stage-report-markdown :deep(ul),
+.stage-report-markdown :deep(ol) {
+  padding-left: 1.25rem;
 }
 
 .stage-item {

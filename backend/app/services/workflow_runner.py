@@ -604,18 +604,29 @@ class WorkflowRunner:
 
             # 工作流完成
             context.result = {
-                "search": search_result,
-                "analyst": analysis_result,
-                "writer": writer_result,
-                "reviewer": review_result,
-                "editor": editor_result,
+                "stages": {
+                    "search": search_result,
+                    "analyst": analysis_result,
+                    "writer": writer_result,
+                    "reviewer": review_result,
+                    "editor": editor_result,
+                },
+                "stage_reports": {
+                    "analyst": self._build_stage_report("analyst", analysis_result),
+                    "writer": self._build_stage_report("writer", writer_result),
+                    "reviewer": self._build_stage_report("reviewer", review_result),
+                    "editor": self._build_stage_report("editor", editor_result),
+                },
+                "final_report": editor_result.get("final_report", ""),
             }
             context.stage_progress["editor"] = 100
 
             # 保存最终报告
             final_report = editor_result.get("final_report", "")
             if final_report:
-                await self._save_final_report(workflow_id, final_report)
+                self.add_report_to_store(workflow_id, final_report)
+
+            self._persist_workflow_result(workflow_id, context.result)
 
             # 更新状态
             self.workflow_store.update_workflow_status(
@@ -624,7 +635,6 @@ class WorkflowRunner:
                 current_stage=None,
                 progress=100,
                 message="工作流完成",
-                result=context.result,
             )
 
             # 发布完成事件
@@ -815,8 +825,14 @@ class WorkflowRunner:
             # 更新阶段进度为 100%
             context.stage_progress[stage_name] = 100
 
-            # 保存阶段结果到上下文
-            context.result = result
+            # 保存阶段结果与阶段性报告到上下文
+            result_container = self._ensure_result_container(context)
+            result_container["stages"][stage_name] = result
+            stage_report = self._build_stage_report(stage_name, result)
+            if stage_report:
+                result_container["stage_reports"][stage_name] = stage_report
+            context.result = result_container
+            self._persist_workflow_result(workflow_id, context.result)
 
             # 如果是 editor 阶段，保存报告到存储
             if stage_name == "editor" and result:
@@ -921,6 +937,16 @@ class WorkflowRunner:
         """工作流完成回调"""
         # 停止超时监控
         await context.stop_timeout_monitor()
+
+        result_container = self._ensure_result_container(context)
+        stage_reports = result_container.get("stage_reports", {})
+        final_stage_report = stage_reports.get("editor", {})
+        result_container["final_report"] = (
+            final_stage_report.get("content_markdown")
+            or result_container.get("stages", {}).get("editor", {}).get("final_report", "")
+        )
+        context.result = result_container
+        self._persist_workflow_result(workflow_id, context.result)
 
         # 更新数据库状态
         self.workflow_store.update_workflow_status(
@@ -1099,7 +1125,120 @@ class WorkflowRunner:
         # 更新工作流结果
         workflow = self.workflow_store.get_workflow(workflow_id)
         if workflow:
-            workflow.result = {"report_id": report_id, "file_path": file_path}
+            existing_result = workflow.result or {}
+            workflow.result = {
+                **existing_result,
+                "report_id": report_id,
+                "file_path": file_path,
+            }
             self.workflow_store.update_workflow(workflow)
 
         return report_id
+
+    def _ensure_result_container(self, context: WorkflowContext) -> Dict[str, Any]:
+        """确保工作流结果容器结构完整。"""
+        result = context.result or {}
+        result.setdefault("stages", {})
+        result.setdefault("stage_reports", {})
+        return result
+
+    def _persist_workflow_result(
+        self,
+        workflow_id: str,
+        result: Optional[Dict[str, Any]],
+    ) -> None:
+        """将中间结果持久化到工作流记录，便于前端实时查看。"""
+        workflow = self.workflow_store.get_workflow(workflow_id)
+        if not workflow:
+            return
+        existing_result = workflow.result or {}
+        workflow.result = {
+            **existing_result,
+            **(result or {}),
+        }
+        self.workflow_store.update_workflow(workflow)
+
+    def _build_stage_report(
+        self,
+        stage_name: str,
+        result: Optional[Dict[str, Any]],
+    ) -> Optional[Dict[str, Any]]:
+        """将阶段原始结果转换为可直接展示的阶段性报告。"""
+        if not result:
+            return None
+
+        generated_at = datetime.now().isoformat()
+
+        if stage_name == "analyst":
+            analysis = result.get("analysis", [])
+            lines = [
+                "# Analyst 阶段报告",
+                "",
+                f"共完成 {len(analysis)} 篇论文的结构化分析。",
+                "",
+            ]
+            for index, item in enumerate(analysis, 1):
+                lines.extend([
+                    f"## {index}. {item.get('title', 'Unknown')}",
+                    "",
+                    f"- 研究问题：{item.get('research_question', 'N/A')}",
+                    f"- 方法论：{item.get('methodology', 'N/A')}",
+                    f"- 核心贡献：{'; '.join(item.get('key_contributions', [])) or 'N/A'}",
+                    f"- 创新点：{'; '.join(item.get('innovations', [])) or 'N/A'}",
+                    f"- 局限性：{'; '.join(item.get('limitations', [])) or 'N/A'}",
+                    "",
+                ])
+            return {
+                "stage": stage_name,
+                "title": "文献分析阶段报告",
+                "summary": f"已分析 {len(analysis)} 篇论文",
+                "content_markdown": "\n".join(lines).strip(),
+                "generated_at": generated_at,
+            }
+
+        if stage_name == "writer":
+            draft = result.get("draft", "")
+            return {
+                "stage": stage_name,
+                "title": "报告撰写阶段报告",
+                "summary": f"草稿长度约 {len(draft.split())} 词",
+                "content_markdown": draft or "# Writer 阶段报告\n\n暂无草稿内容。",
+                "generated_at": generated_at,
+            }
+
+        if stage_name == "reviewer":
+            review = result.get("review", [])
+            lines = [
+                "# Reviewer 阶段报告",
+                "",
+                f"共生成 {len(review)} 条审核意见。",
+                "",
+            ]
+            for index, item in enumerate(review, 1):
+                lines.extend([
+                    f"## 意见 {index}",
+                    "",
+                    f"- 评估维度：{item.get('aspect', 'N/A')}",
+                    f"- 评级：{item.get('rating', 'N/A')}",
+                    f"- 评审意见：{item.get('comment', 'N/A')}",
+                    "",
+                ])
+            return {
+                "stage": stage_name,
+                "title": "质量审核阶段报告",
+                "summary": f"共 {len(review)} 条审核意见",
+                "content_markdown": "\n".join(lines).strip(),
+                "generated_at": generated_at,
+            }
+
+        if stage_name == "editor":
+            final_report = result.get("final_report", "")
+            return {
+                "stage": stage_name,
+                "title": "最终编辑阶段报告",
+                "summary": f"终稿长度约 {len(final_report.split())} 词",
+                "content_markdown": final_report or "# Editor 阶段报告\n\n暂无终稿内容。",
+                "generated_at": generated_at,
+            }
+
+        return None
