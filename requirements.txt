@@ -1,0 +1,19 @@
+# Multi-Agent 文献工作流系统依赖
+
+# HTTP 和异步
+aiohttp>=3.9.0
+aiofiles>=23.0.0
+
+# PDF 处理
+pypdf>=4.0.0
+
+# 配置和数据
+pyyaml>=6.0
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+
+# 搜索工具
+duckduckgo-search>=5.0.0
+scholarly>=1.7.11  # Google Scholar 搜索
+
+# 后端特定依赖（FastAPI 等）在 backend/requirements.txt 中

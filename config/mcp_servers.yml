@@ -1,0 +1,36 @@
+# MCP Server 配置
+mcp_servers:
+  filesystem:
+    command: "npx"
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-filesystem"
+      - "."
+    enabled: true
+    tools:
+      - read_file
+      - write_file
+      - list_directory
+      - create_directory
+      - move_file
+      - delete_file
+
+  arxiv:
+    # ArXiv MCP Server (如果存在) 或通过 HTTP 调用
+    type: "http"
+    url: "https://export.arxiv.org/api"
+    enabled: true
+    tools:
+      - search_papers
+      - get_paper_details
+      - download_pdf
+
+  database:
+    # 本地 SQLite 数据库
+    type: "sqlite"
+    path: "./output/tasks.db"
+    enabled: true
+    tools:
+      - query_db
+      - insert_record
+      - update_record

@@ -1,0 +1,79 @@
+# Agent 配置
+agents:
+  coordinator:
+    name: "Coordinator"
+    role: "任务协调与结果汇总"
+    skills:
+      - task_management
+      - team_coordination
+    tools:
+      - assign_task
+      - check_status
+      - merge_results
+    model: "qwen3.5-plus"
+    max_tokens: 4000
+
+  search:
+    name: "Search Agent"
+    role: "学术文献搜索和文档处理"
+    skills:
+      - literature_search
+      - document_processing
+    tools:
+      - arxiv_search
+      - download_paper
+      - parse_pdf
+    model: "qwen3.5-plus"
+    max_tokens: 4000
+
+  analyst:
+    name: "Analyst Agent"
+    role: "关键信息提取和分析"
+    skills:
+      - critical_analysis
+      - innovation_detection
+    tools:
+      - extract_chapters
+      - evaluate_novelty
+      - quality_check
+    model: "qwen3.5-plus"
+    max_tokens: 4000
+
+  writer:
+    name: "Writer Agent"
+    role: "报告撰写和对比分析"
+    skills:
+      - academic_writing
+      - comparison_analysis
+    tools:
+      - compare_methods
+      - write_section
+      - format_report
+    model: "qwen3.5-plus"
+    max_tokens: 4000
+
+  reviewer:
+    name: "Reviewer Agent"
+    role: "质量审核和错误检测"
+    skills:
+      - peer_review
+      - error_detection
+    tools:
+      - review_quality
+      - check_consistency
+      - suggest_improvements
+    model: "qwen3.5-plus"
+    max_tokens: 4000
+
+  editor:
+    name: "Editor Agent"
+    role: "最终编辑和输出发布"
+    skills:
+      - document_editing
+      - publishing
+    tools:
+      - finalize_report
+      - export_pdf
+      - publish_output
+    model: "qwen3.5-plus"
+    max_tokens: 4000

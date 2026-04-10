@@ -1,0 +1,291 @@
+/**
+ * 全局设计系统 - Design Tokens
+ * 基于 Linear/Vercel/Stripe 风格的现代化设计语言
+ * 五大重构维度：视觉层次、精致排版、现代化组件、消除 AI 痕迹、交互反馈
+ */
+
+:root {
+  /* =============================================
+     品牌色系 - Brand Colors
+     采用更深沉、专业的蓝色调
+     ============================================= */
+  --brand-primary: #2563eb;
+  --brand-primary-hover: #1d4ed8;
+  --brand-primary-active: #1e40af;
+  --brand-primary-subtle: #eff6ff;
+  --brand-primary-muted: #dbeafe;
+  --brand-primary-faded: #bfdbfe;
+  --brand-header-bg: rgba(239, 246, 255, 0.78);
+  --brand-header-border: rgba(37, 99, 235, 0.1);
+  --brand-accent-soft: rgba(219, 234, 254, 0.96);
+  --brand-accent-glow: rgba(37, 99, 235, 0.22);
+  --brand-table-header: rgba(239, 246, 255, 0.72);
+  --brand-table-row-hover: rgba(239, 246, 255, 0.52);
+
+  /* 渐变 - 更克制的渐变效果 */
+  --gradient-subtle: linear-gradient(180deg, #fafbfc 0%, #f0f2f5 100%);
+
+  /* =============================================
+     中性色系 - Neutrals
+     采用 Gray 色系，更中性专业
+     ============================================= */
+  --gray-25: #fcfcfd;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+
+  /* =============================================
+     功能色系 - Functional Colors
+     低饱和度，更精致专业
+     ============================================= */
+  /* Success - 祖母绿系 */
+  --success-base: #059669;
+  --success-light: #d1fae5;
+  --success-dark: #065f46;
+  --success-bg: #f0fdf4;
+  --success-solid: #10b981;
+
+  /* Warning - 琥珀色系 */
+  --warning-base: #d97706;
+  --warning-light: #fef3c7;
+  --warning-dark: #92400e;
+  --warning-bg: #fffbeb;
+  --warning-solid: #f59e0b;
+
+  /* Error/Danger - 玫瑰红系 */
+  --danger-base: #dc2626;
+  --danger-light: #fee2e2;
+  --danger-dark: #b91c1c;
+  --danger-bg: #fef2f2;
+  --danger-solid: #ef4444;
+
+  /* Info - 蓝色系 */
+  --info-base: #2563eb;
+  --info-light: #dbeafe;
+  --info-dark: #1e40af;
+  --info-bg: #eff6ff;
+  --info-solid: #3b82f6;
+
+  /* =============================================
+     文本色系 - Typography Colors
+     更大的对比度，更清晰
+     ============================================= */
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-tertiary: #9ca3af;
+  --text-disabled: #d1d5db;
+  --text-inverse: #ffffff;
+  --text-link: #2563eb;
+  --text-link-hover: #1d4ed8;
+
+  /* =============================================
+     背景色系 - Background Colors
+     多层级背景，营造深度感
+     ============================================= */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  --bg-elevated: #ffffff;
+  --bg-overlay: rgba(17, 24, 39, 0.5);
+  --bg-backdrop: rgba(255, 255, 255, 0.8);
+
+  /* =============================================
+     边框色系 - Border Colors
+     极细边框，配合微妙的色彩
+     ============================================= */
+  --border-primary: #e5e7eb;
+  --border-secondary: #f3f4f6;
+  --border-focus: #2563eb;
+  --border-hover: #d1d5db;
+  --border-subtle: rgba(0, 0, 0, 0.04);
+
+  /* =============================================
+     阴影系统 - Shadow System
+     多层柔化阴影，营造悬浮感和空气感
+     使用 rgba 格式以获得更好的混合效果
+     ============================================= */
+  /* 基础阴影 - 更柔和的扩散 */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  --shadow-base: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.12);
+  --shadow-2xl: 0 35px 60px -15px rgba(0, 0, 0, 0.15);
+
+  /* 悬浮阴影 - 用于 hover 状态，更明显的提升感 */
+  --shadow-hover: 0 12px 24px -4px rgba(0, 0, 0, 0.07), 0 4px 8px -4px rgba(0, 0, 0, 0.03);
+  --shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.2);
+
+  /* 内阴影 - 营造凹陷感 */
+  --shadow-inset: inset 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  --shadow-inset-strong: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+
+  /* 卡片阴影 - 专门用于卡片的柔和阴影 */
+  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  --shadow-card-hover: 0 4px 12px 0 rgba(0, 0, 0, 0.06), 0 2px 4px 0 rgba(0, 0, 0, 0.04);
+
+  /* =============================================
+     圆角系统 - Border Radius
+     统一使用较大圆角，更亲和现代
+     ============================================= */
+  --radius-none: 0;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+  --radius-full: 9999px;
+
+  /* =============================================
+     间距系统 - Spacing Scale
+     基于 4px 网格
+     ============================================= */
+  --space-0: 0;
+  --space-0\.5: 2px;
+  --space-1: 4px;
+  --space-1\.5: 6px;
+  --space-2: 8px;
+  --space-2\.5: 10px;
+  --space-3: 12px;
+  --space-3\.5: 14px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-9: 36px;
+  --space-10: 40px;
+  --space-11: 44px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-28: 112px;
+  --space-32: 128px;
+
+  /* =============================================
+     字体系统 - Typography Scale
+     使用更现代的字体栈
+     ============================================= */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, Monaco, 'Courier New', monospace;
+
+  /* 字体大小 - 更精细的阶梯 */
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 18px;
+  --text-2xl: 20px;
+  --text-3xl: 24px;
+  --text-4xl: 30px;
+  --text-5xl: 36px;
+  --text-6xl: 42px;
+
+  /* 字重 - 更细腻的对比 */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-extrabold: 800;
+
+  /* 行高 - 更大的行高以增加空气感 */
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+
+  /* 字间距 - 更紧凑的标题字间距 */
+  --tracking-tighter: -0.05em;
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.025em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.1em;
+
+  /* =============================================
+     动效系统 - Transitions & Animation
+     更流畅自然的动效曲线
+     ============================================= */
+  --duration-instant: 50ms;
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 500ms;
+  --duration-slowest: 700ms;
+
+  /* 缓动曲线 - 更自然的物理感 */
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.15);
+  --ease-spring-fast: cubic-bezier(0.3, 0.7, 0.4, 1);
+
+  /* 常用过渡 */
+  --transition-base: all var(--duration-normal) var(--ease-in-out);
+  --transition-fast: all var(--duration-fast) var(--ease-out);
+  --transition-slow: all var(--duration-slow) var(--ease-in-out);
+  --transition-spring: all var(--duration-normal) var(--ease-spring);
+
+  /* =============================================
+     层级系统 - Z-Index Scale
+     更清晰的层级划分
+     ============================================= */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-modal-backdrop: 300;
+  --z-modal: 301;
+  --z-popover: 400;
+  --z-tooltip: 500;
+  --z-toast: 600;
+  --z-drawer: 700;
+
+  /* =============================================
+     布局 - Layout
+     ============================================= */
+  --header-height: 64px;
+  --sidebar-width: 280px;
+  --sidebar-collapsed-width: 72px;
+  --content-max-width: 1440px;
+  --content-narrow-width: 900px;
+
+  /* =============================================
+     模糊效果 - Blur
+     ============================================= */
+  --blur-sm: 4px;
+  --blur-md: 8px;
+  --blur-lg: 12px;
+  --blur-xl: 16px;
+
+  /* =============================================
+     透明背景色 - Backdrop
+     ============================================= */
+  --backdrop-blur: blur(12px);
+  --backdrop-saturate: saturate(180%);
+}

@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+.Python
+*.egg-info/
+.eggs/
+
+# 虚拟环境
+venv/
+.venv/
+env/
+
+# 敏感信息 (但保留.env.example 作为模板)
+.env
+*.key
+*.pem
+*.sql
+
+# IDE
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 项目输出
+output/papers/*.pdf
+output/reports/*.md
+output/reports/*.json
+output/*.db
+output/*.db-wal
+output/*.db-shm
+backend/output/*.db
+backend/output/*.db-wal
+backend/output/*.db-shm
+backend/output/reports/*.md
+*.log
+debug.md
+scholarly_explain.md
+tmp/
+
+# 构建文件
+dist/
+build/
+uv.lock
+pyproject.toml
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Frontend build
+frontend/dist/
+frontend/.vite/
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# 测试
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+*.tsbuildinfo
