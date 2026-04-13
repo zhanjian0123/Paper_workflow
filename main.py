@@ -226,6 +226,17 @@ async def main_async():
         help="论文数据源：arxiv（仅 ArXiv）, google（仅 Google Scholar）, both（两者）（默认：arxiv）",
     )
     parser.add_argument(
+        "--web-search-query",
+        type=str,
+        help="直接调用 web_search 工具进行联网搜索",
+    )
+    parser.add_argument(
+        "--web-search-max-results",
+        type=int,
+        default=5,
+        help="web_search 工具返回的最大结果数（默认：5）",
+    )
+    parser.add_argument(
         "--memory",
         type=str,
         choices=["list", "save", "delete", "cleanup"],
@@ -336,6 +347,29 @@ async def main_async():
             print("\nAvailable Agents:")
             for name, agent in system.agents.items():
                 print(f"  - {name}: {agent.description}")
+            return 0
+
+        if args.web_search_query:
+            result = await system.tools_registry.execute_tool(
+                "web_search",
+                "search",
+                query=args.web_search_query,
+                max_results=args.web_search_max_results,
+            )
+            print(f"\n{'='*60}")
+            print("Web Search 结果")
+            print(f"{'='*60}")
+            if result.success:
+                print(f"搜索引擎：{result.metadata.get('engine', 'N/A')}")
+                if result.warning:
+                    print(f"警告：{result.warning}")
+                for idx, item in enumerate(result.data.get("results", []), 1):
+                    print(f"{idx}. {item.get('title', 'N/A')}")
+                    print(f"   URL: {item.get('url', '')}")
+                    print(f"   摘要: {item.get('snippet', '')}")
+            else:
+                print(f"错误：{result.error}")
+                return 1
             return 0
 
         if args.agent:

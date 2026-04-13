@@ -119,6 +119,9 @@
 ANTHROPIC_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
 ANTHROPIC_API_KEY=sk-your-api-key-here
 MODEL_ID=qwen3.5-plus
+WEB_SEARCH_ENGINE=bailian_mcp
+WEB_SEARCH_FALLBACK_ENABLED=true
+DASHSCOPE_WEB_SEARCH_MCP_URL=https://dashscope.aliyuncs.com/api/v1/mcps/WebSearch/sse
 ```
 
 说明：
@@ -126,6 +129,9 @@ MODEL_ID=qwen3.5-plus
 - `ANTHROPIC_BASE_URL`：当前示例使用 DashScope 的 Anthropic 兼容接口
 - `ANTHROPIC_API_KEY`：模型调用密钥
 - `MODEL_ID`：默认模型名
+- `WEB_SEARCH_ENGINE`：`bailian_mcp` 表示优先通过百炼 WebSearch MCP 搜索，`duckduckgo` 表示使用本地 DuckDuckGo 搜索
+- `WEB_SEARCH_FALLBACK_ENABLED`：百炼搜索失败时是否自动回退到 DuckDuckGo
+- `DASHSCOPE_WEB_SEARCH_MCP_URL`：百炼 WebSearch MCP 服务地址，默认使用官方 `https://dashscope.aliyuncs.com/api/v1/mcps/WebSearch/sse`
 
 ## 本地开发
 
@@ -191,6 +197,12 @@ python main.py -r "multimodal reasoning" -s both -m 5
 python main.py -a search -r "graph neural networks"
 ```
 
+### 直接调用百炼 WebSearch MCP
+
+```bash
+python main.py --web-search-query "阿里云百炼 MCP 最新文档" --web-search-max-results 5
+```
+
 ### 常用参数
 
 | 参数 | 说明 |
@@ -200,6 +212,8 @@ python main.py -a search -r "graph neural networks"
 | `-y, --year-range` | 年份范围，如 `2024-2026` |
 | `-m, --max-papers` | 最大论文数 |
 | `-s, --source` | `arxiv` / `google` / `both` |
+| `--web-search-query` | 直接调用 `web_search` 工具 |
+| `--web-search-max-results` | `web_search` 最大返回条数 |
 | `--model` | 指定模型名称 |
 | `--api-key` | 覆盖环境变量中的 API Key |
 | `--base-url` | 覆盖环境变量中的 Base URL |
